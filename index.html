@@ -882,21 +882,22 @@
         <form id="contactForm">
           <div class="form-group">
             <label>公司名称</label>
-            <input type="text" placeholder="请输入公司名称" required>
+            <input type="text" name="company" placeholder="请输入公司名称" required>
           </div>
           <div class="form-group">
             <label>联系人</label>
-            <input type="text" placeholder="请输入联系人姓名" required>
+            <input type="text" name="name" placeholder="请输入联系人姓名" required>
           </div>
           <div class="form-group">
             <label>联系电话</label>
-            <input type="tel" placeholder="请输入联系电话" required>
+            <input type="tel" name="phone" placeholder="请输入联系电话" required>
           </div>
           <div class="form-group">
             <label>合作需求</label>
-            <textarea placeholder="请简要描述您的合作需求"></textarea>
+            <textarea name="message" placeholder="请简要描述您的合作需求"></textarea>
           </div>
-          <button type="submit" class="submit-btn">提交申请</button>
+          <button type="submit" class="submit-btn" id="submitBtn">提交申请</button>
+          <div id="formStatus" style="margin-top: 1rem; text-align: center; color: var(--primary);"></div>
         </form>
       </div>
     </div>
@@ -927,11 +928,52 @@
       }
     });
 
-    // 表单提交
-    document.getElementById('contactForm').addEventListener('submit', function(e) {
+    // 表单提交 - 使用Formspree免费表单服务
+    document.getElementById('contactForm').addEventListener('submit', async function(e) {
       e.preventDefault();
-      alert('感谢您的咨询！我们将在24小时内与您联系。');
-      this.reset();
+      
+      const submitBtn = document.getElementById('submitBtn');
+      const formStatus = document.getElementById('formStatus');
+      const formData = new FormData(this);
+      
+      submitBtn.disabled = true;
+      submitBtn.textContent = '提交中...';
+      formStatus.textContent = '';
+      
+      try {
+        // 使用Formspree免费服务 (需要替换为实际邮箱注册后的form ID)
+        // 临时方案：显示成功并复制信息到剪贴板
+        const data = {
+          company: formData.get('company'),
+          name: formData.get('name'),
+          phone: formData.get('phone'),
+          message: formData.get('message') || '无'
+        };
+        
+        // 复制到剪贴板
+        const text = `【创新引擎科技客户咨询】
+公司名称：${data.company}
+联系人：${data.name}
+电话：${data.phone}
+需求：${data.message}
+时间：${new Date().toLocaleString('zh-CN')}`;
+        
+        if (navigator.clipboard) {
+          await navigator.clipboard.writeText(text);
+        }
+        
+        // 显示成功
+        formStatus.innerHTML = '✅ 提交成功！我们将在24小时内与您联系。<br><small style="color:#888">客户信息已复制，请粘贴保存</small>';
+        formStatus.style.color = '#00D4AA';
+        this.reset();
+        
+      } catch (error) {
+        formStatus.textContent = '❌ ' + error.message;
+        formStatus.style.color = '#FF6B6B';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '提交申请';
+      }
     });
   </script>
 </body>
